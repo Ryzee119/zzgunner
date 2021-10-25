@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+    paths-ignore:
+      - '.github/*'
+      - '.github/*_TEMPLATE/**'
+      - '*.md'
+  pull_request:
+    paths-ignore:
+      - '.github/*'
+      - '.github/*_TEMPLATE/**'
+      - '*.md'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Setup Libdragon
+      run: |
+           export BUILD_TAG=build-$(date -u +'%Y%m%d%H%M')
+           echo "BUILD_TAG=$BUILD_TAG" >> $GITHUB_ENV
+           wget https://github.com/anacierdem/libdragon-docker/releases/download/v10.2.1/libdragon-linux-x86_64.tar.gz
+           tar xvzf libdragon-linux-x86_64.tar.gz
+           rm libdragon-linux-x86_64.tar.gz
+           mv libdragon _libdragon
+           sudo chmod +x _libdragon
+           ./_libdragon init
+
+    - name: Compile
+      run: |
+           ./_libdragon make
+
+    - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      name: Create Release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: ${{ env.BUILD_TAG }}
+        prerelease: true
+        files: |
+               *.z64

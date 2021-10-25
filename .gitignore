@@ -1,0 +1,10 @@
+.vscode
+.libdragon
+.cen64
+libdragon
+build
+filesystem/music
+filesystem/sfx
+*.z64
+*.bin
+*.pak
