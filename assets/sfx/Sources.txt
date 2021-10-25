@@ -1,0 +1,10 @@
+sfx1: https://opengameart.org/content/laser-rifle
+sfx2: https://opengameart.org/content/laser-rifle
+sfx3: https://opengameart.org/content/sci-fi-laser-fire-sfx
+sfx4: https://freesound.org/people/rdaly95/sounds/387133/
+sfx5:https://opengameart.org/content/button-press
+sfx6:https://lpc.opengameart.org/content/4-sci-fi-menu-sounds
+sfx7: https://opengameart.org/content/synthesized-explosion
+sfx8: https://opengameart.org/content/punch
+sfx9 https://opengameart.org/content/tx-alert
+
