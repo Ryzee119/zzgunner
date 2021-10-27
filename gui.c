@@ -191,11 +191,11 @@ game_state_t gui_handle(game_state_t game_state)
         static int cursor_pos = 0;
 
         if (keys_down.c[0].down)
-            cursor_pos = (cursor_pos + 1) % 3;
+            cursor_pos = (cursor_pos + 1) % 1;
         if (keys_down.c[0].up)
             cursor_pos--;
         if (cursor_pos < 0)
-            cursor_pos = 2;
+            cursor_pos = 0;
 
         game_sprite_set_pos(cursor, cursor->x, 80 + cursor_pos * 40);
         font_write("ZZGUNNER", ALIGN_CENTER, 20, 400);
@@ -223,8 +223,7 @@ game_state_t gui_handle(game_state_t game_state)
         font_write("Unfortunately the ship has gone into", ALIGN_CENTER, 130, 100);
         font_write("lockdown!", ALIGN_CENTER, 150, 100);
         font_write("You must hit the 3 control pads on", ALIGN_CENTER, 180, 100);
-        font_write("each floor to get to the next stage!.", ALIGN_CENTER, 200, 100);
-        
+        font_write("each floor to get to the next stage!.", ALIGN_CENTER, 200, 100); 
     }
     else if (_state == LOADING_LEVEL)
     {

@@ -144,7 +144,7 @@ static void bullet_collision_callback(game_sprite_t *this, game_sprite_t *that)
         pdata->health -= bdata->damage;
         sfx_play(SFX_OUCH);
     }
-    else if (that->type == TYPE_ENEMY && this->type == TYPE_PLAYER_BULLET)
+    else if (that->type == TYPE_ENEMY && this->type == TYPE_PLAYER_BULLET && this->destroy == false)
     {
         enemy_data_t *edata = (enemy_data_t *)that->user_data;
         bullet_data_t *bdata = (bullet_data_t *)this->user_data;
