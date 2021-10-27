@@ -22,7 +22,7 @@ static void __rdp_interrupt()
 
 void video_init()
 {
-    display_init(RESOLUTION_320x240, DEPTH_16_BPP, NUM_BUFFERS, GAMMA_NONE, ANTIALIAS_OFF);
+    display_init(RESOLUTION_320x240, DEPTH_16_BPP, NUM_BUFFERS, GAMMA_NONE, ANTIALIAS_RESAMPLE_FETCH_ALWAYS);
     ugfx_init(UGFX_MIN_RDP_BUFFER_SIZE * 16);
     render_commands[0] = ugfx_buffer_new(2048);
     render_commands[1] = ugfx_buffer_new(2048);
