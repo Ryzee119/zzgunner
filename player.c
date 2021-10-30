@@ -123,27 +123,6 @@ void player_handle_logic(game_sprite_t *player)
         player_state->aiming_angle = atan2(-keys.c[0].y, keys.c[0].x + 0.0001);
     }
 
-    struct SI_condat c = keys.c[0];
-    if (c.C_right && c.C_down)
-        player_state->aiming_angle = 1 * PI / 4;
-    else if (c.C_down && c.C_left)
-        player_state->aiming_angle = 3 * PI / 4;
-    else if (c.C_left && c.C_up)
-        player_state->aiming_angle = 5 * PI / 4;
-    else if (c.C_up && c.C_right)
-        player_state->aiming_angle = 7 * PI / 4;
-    else
-    {
-        if (c.C_right)
-            player_state->aiming_angle = 0 * PI / 4;
-        else if (c.C_down)
-            player_state->aiming_angle = 2 * PI / 4;
-        else if (c.C_left)
-            player_state->aiming_angle = 4 * PI / 4;
-        else if (c.C_up)
-            player_state->aiming_angle = 6 * PI / 4;
-    }
-
     if (keys_down.c[0].L)
     {
         game_sprite_set_animation(player, PLAYER_ROLLING);
@@ -171,6 +150,26 @@ void player_handle_logic(game_sprite_t *player)
     }
 
     int direction = get_dpad_direction(0);
+    struct SI_condat c = keys.c[0];
+    if (c.C_right && c.C_down)
+        direction = MOVE_DOWNRIGHT;
+    else if (c.C_down && c.C_left)
+        direction = MOVE_DOWNLEFT;
+    else if (c.C_left && c.C_up)
+        direction = MOVE_UPLEFT;
+    else if (c.C_up && c.C_right)
+        direction = MOVE_UPRIGHT;
+    else
+    {
+        if (c.C_right)
+            direction = MOVE_RIGHT;
+        else if (c.C_down)
+            direction = MOVE_DOWN;
+        else if (c.C_left)
+            direction = MOVE_LEFT;
+        else if (c.C_up)
+            direction = MOVE_UP;
+    }
     if (direction >= 0 && (get_milli_tick() > player_state->roll_timer))
     {
         game_sprite_set_animation(player, PLAYER_RUNNING);
