@@ -37,7 +37,8 @@ int main(void)
 {
 #ifdef N64
     controller_init();
-    debug_init(DEBUG_FEATURE_LOG_ISVIEWER);
+    //Uncomment for IS-VIEWER debug output.
+    //debug_init(DEBUG_FEATURE_LOG_ISVIEWER);
     dfs_init(DFS_DEFAULT_LOCATION);
     timer_init();
 #ifdef SHOW_FPS
