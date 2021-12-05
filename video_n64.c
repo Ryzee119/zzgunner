@@ -209,7 +209,7 @@ void video_draw_tex_rect(void *tex, uint8_t bpp, int x, int y, int w, int h, int
                                                UGFX_SAMPLE_POINT | UGFX_BI_LERP_0 | UGFX_BI_LERP_1 | UGFX_ALPHA_DITHER_NONE | UGFX_RGB_DITHER_NONE |
                                                UGFX_IMAGE_READ | UGFX_ALPHA_COMPARE));
 
-            ugfx_buffer_push(command_list, ugfx_set_combine_mode(0, 0, 0, 0, 0, 0, 0, 0, 6, 15, 1, 7, 1, 7, 0, 7));
+            ugfx_buffer_push(command_list, ugfx_set_combine_mode(0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1));
             ugfx_buffer_push(command_list, ugfx_set_blend_color(0x00000001));
             current_render_mode = UGFX_CYCLE_1CYCLE;
         }
