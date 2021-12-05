@@ -1,6 +1,6 @@
 # zzgunner
 
-My stupid game for the N64 Game Jam 2021 :) The theme for this year was *Control*.
+My stupid game for the N64 Game Jam 2021 :) The theme for this year was *Control*. See [Releases](https://github.com/Ryzee119/zzgunner/releases) for binary downloads.
 
 The game is a "Dungeon Crawler"/"Rogue-Like" genre game. The objective is to regain control of your space ship which has been overrun by Alien robots.
 
