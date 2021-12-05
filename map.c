@@ -542,6 +542,19 @@ void map_init(int level)
         game_sprite_create_static(sprite_load_from_png("rom:/misc/planet-2.png"), TYPE_MAPOBJECT,
                                   TILE_X(44), TILE_Y(24), 100, 100, false, false);
 
+        create_weaponbox(TILE_X(20.25), TILE_Y(34.25), WEAPON_AUTOMATIC, 50);
+        create_weaponbox(TILE_X(21.25), TILE_Y(34.25), WEAPON_AUTOMATIC, 50);
+
+        create_weaponbox(TILE_X(33.25), TILE_Y(29.25), WEAPON_SHOTGUN, 25);
+        create_weaponbox(TILE_X(33.25), TILE_Y(15.25), WEAPON_SHOTGUN, 25);
+
+        create_medipak(TILE_X(11.25), TILE_Y(13.25), 2);
+        create_medipak(TILE_X(19.25), TILE_Y(13.25), 2);
+        create_medipak(TILE_X(27.25), TILE_Y(13.25), 2);
+        create_medipak(TILE_X(33.25), TILE_Y(16.25), 2);
+        create_medipak(TILE_X(33.25), TILE_Y(28.25), 2);
+
+
         create_controlpad(TILE_X(39), TILE_Y(23), 0);
         create_controlpad(TILE_X(39), TILE_Y(24), 1);
         create_controlpad(TILE_X(39), TILE_Y(25), 2);
