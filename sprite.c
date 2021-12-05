@@ -8,7 +8,7 @@ static game_sprite_t *last = NULL;
 static simple_sprite_t sprite_cache[MAX_SPRITES];
 
 //I also keep track of the sprites that are on screen for collision detection purposes.
-static game_sprite_t *on_screen_sprites[50];
+static game_sprite_t *on_screen_sprites[MAX_SPRITES];
 static int on_screen_sprites_last = 0;
 
 static inline uint32_t __rdp_round_to_power(uint32_t number)
@@ -87,7 +87,7 @@ int sprite_load_from_png(const char *name)
             sprite_cache[i].width = w;
             sprite_cache[i].height = __rdp_round_to_power(h);
             sprite_cache[i].bits_per_pixel = 16;
-            //debugf("%s %d %d at %d\n", name, sprite_cache[i].width, sprite_cache[i].height);
+            //debugf("%s %d %d at %d\n", name, sprite_cache[i].width, sprite_cache[i].height, i);
 #ifdef N64
             data_cache_hit_writeback_invalidate(sprite_cache[i].data, w * __rdp_round_to_power(h) * sizeof(uint16_t));
 #endif
@@ -190,7 +190,7 @@ game_sprite_t *game_sprite_copy(game_sprite_t *src, int x, int y, int scale_x, i
 
 void game_sprite_handle_collisions()
 {
-    for (int i = 0; i < (on_screen_sprites_last); i++)
+    for (int i = 0; i < on_screen_sprites_last; i++)
     {
         collision_box_t box_a;
         game_sprite_get_collision_box(on_screen_sprites[i], &box_a);
@@ -236,14 +236,16 @@ void game_sprite_free(game_sprite_t *game_sprite)
     if (game_sprite == head)
     {
         head = game_sprite->next;
-        head->prev = NULL;
+        if (head != NULL)
+            head->prev = NULL;
     }
 
     //Handle list tail
-    if (game_sprite == last)
+    else if (game_sprite == last)
     {
         last = game_sprite->prev;
-        last->next = NULL;
+        if (last != NULL)
+            last->next = NULL;
     }
 
     //Relink list
@@ -357,6 +359,10 @@ void game_sprite_draw_all()
         if (a->destroy)
         {
             game_sprite_t *temp = a->next;
+            if (camera_is_sprite_onscreen(a))
+            {
+                on_screen_sprites_last--;
+            }
             game_sprite_free(a);
             a = temp;
             continue;
@@ -377,6 +383,7 @@ void game_sprite_draw_all()
 
         if (on_screen && !a->fixed_on_screen)
         {
+            assertf(on_screen_sprites_last < MAX_SPRITES, "Increase on screen sprite count\n");
             on_screen_sprites[on_screen_sprites_last] = a;
             on_screen_sprites_last++;
         }
@@ -433,7 +440,7 @@ void game_sprite_draw_all()
             _y = camera_absolute_to_relative_y(a->y);
         }
 
-        if ((on_screen || a->fixed_on_screen) && a->type != TYPE_PLAYER)
+        if ((on_screen || a->fixed_on_screen))
         {
             sprite_draw(a_anim->sprite_indexes[a_anim->current_frame],
                     _x,
