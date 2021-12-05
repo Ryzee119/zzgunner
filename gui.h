@@ -14,6 +14,9 @@ extern "C" {
 #define MAX_STRING_LEN 64
 #endif
 
+#define CONTROL_SCHEME_MOVE 0
+#define CONTROL_SCHEME_AIM 1
+
 #define ALIGN_CENTER (-1)
 
 typedef enum

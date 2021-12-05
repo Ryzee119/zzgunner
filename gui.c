@@ -1,5 +1,7 @@
 #include "common.h"
 
+#define MENU_ITEMS 4
+
 static char *font_data;
 typedef struct
 {
@@ -191,15 +193,30 @@ game_state_t gui_handle(game_state_t game_state)
         static int cursor_pos = 0;
 
         if (keys_down.c[0].down)
-            cursor_pos = (cursor_pos + 1) % 1;
+            cursor_pos = (cursor_pos + 1) % MENU_ITEMS;
         if (keys_down.c[0].up)
             cursor_pos--;
         if (cursor_pos < 0)
             cursor_pos = 0;
 
-        game_sprite_set_pos(cursor, cursor->x, 80 + cursor_pos * 40);
+        game_sprite_t *player = game_sprite_get_type(TYPE_PLAYER, true);
+        player_data_t *pdata = (player_data_t *)player->user_data;
+
+        static const char *stick0 = "STICK-MOVE";
+        static const char *stick1 = "STICK-AIM";
+        static const char *dpad0 = "DPAD-MOVE";
+        static const char *dpad1 = "DPAD-AIM";
+        static const char *cpad0 = "CPAD-MOVE";
+        static const char *cpad1 = "CPAD-AIM";
+
+        game_sprite_set_pos(cursor, cursor->x, 80 + cursor_pos * 20);
         font_write("ZZGUNNER", ALIGN_CENTER, 20, 400);
         font_write("START GAME", ALIGN_CENTER, 80, 150);
+        font_write((pdata->control_scheme_stick) ? stick1 : stick0, ALIGN_CENTER, 100, 100);
+        font_write((pdata->control_scheme_dpad) ? dpad1 : dpad0, ALIGN_CENTER, 120, 100);
+        font_write((pdata->control_scheme_cpad) ? cpad1 : cpad0, ALIGN_CENTER, 140, 100);
+        font_write("R,Z,B-FIRE   L,A-ROLL", ALIGN_CENTER, 160, 100);
+
         font_write("Made for N64 Game Jam 2021", ALIGN_CENTER, video_get_height() - 40, 100);
         font_write("By Ryzee119", ALIGN_CENTER, video_get_height() - 30, 100);
 
@@ -207,6 +224,15 @@ game_state_t gui_handle(game_state_t game_state)
         {
             if (cursor_pos == 0)
                 game_state = INIT_STORY_SCREEN;
+
+            else if (cursor_pos == 1)
+                pdata->control_scheme_stick ^= 1;
+
+            else if (cursor_pos == 2)
+                pdata->control_scheme_dpad ^= 1;
+
+            else if (cursor_pos == 3)
+                pdata->control_scheme_cpad ^= 1;
         }
     }
     else if (_state == INIT_STORY_SCREEN)
