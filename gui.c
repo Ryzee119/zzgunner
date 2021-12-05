@@ -276,22 +276,22 @@ game_state_t gui_handle(game_state_t game_state)
     {
         gui_clear();
         gui_create_element(sprite_load_from_png("rom:/misc/life-box.png"),
-                               10, 10, 100, 100, false, false);
+                               10, 20, 100, 100, false, false);
 
         for (int i = 0; i < PLAYER_MAX_HEALTH; i++)
         {
             life_bars[i] = gui_create_element(sprite_load_from_png("rom:/misc/life-rectangle.png"),
-                                                  18 + (8 * i), 15, 100, 100, false, false);
+                                                  18 + (8 * i), 25, 100, 100, false, false);
         }
 
         weapons[WEAPON_PISTOL] = gui_create_element(sprite_load_from_png("rom:/misc/pistol.png"),
-                                                        10, 35, 100, 100, false, false);
+                                                        10, 45, 100, 100, false, false);
 
         weapons[WEAPON_AUTOMATIC] = gui_create_element(sprite_load_from_png("rom:/misc/auto.png"),
-                                                        10, 35, 100, 100, false, false);
+                                                        10, 45, 100, 100, false, false);
 
         weapons[WEAPON_SHOTGUN] = gui_create_element(sprite_load_from_png("rom:/misc/shotgun.png"),
-                                                        10, 35, 100, 100, false, false);
+                                                        10, 45, 100, 100, false, false);
 
         game_sprite_t *player = game_sprite_get_type(TYPE_PLAYER, true);
         while(player != NULL)
@@ -347,7 +347,7 @@ void gui_draw_all()
         player_data_t *player_state = (player_data_t *)player->user_data;
         char ammo[6];
         sprintf(ammo, "%d", player_state->ammo);
-        font_write(ammo, 40, 35, 150);
+        font_write(ammo, 40, 45, 150);
         if (weapons[WEAPON_PISTOL])
             weapons[WEAPON_PISTOL]->visible = false;
         if (weapons[WEAPON_PISTOL])
