@@ -24,7 +24,7 @@ typedef struct
     int current_weapon;
     int last_fire_tick;
     int ammo;
-    uint8_t health;
+    int8_t health;
     float speed;
     float aiming_angle;
     int control_scheme_stick;
