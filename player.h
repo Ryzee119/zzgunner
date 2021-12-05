@@ -27,6 +27,9 @@ typedef struct
     uint8_t health;
     float speed;
     float aiming_angle;
+    int control_scheme_stick;
+    int control_scheme_dpad;
+    int control_scheme_cpad;
 } player_data_t;
 
 extern int PLAYER_IDLE, PLAYER_RUNNING, PLAYER_ROLLING;

@@ -102,6 +102,9 @@ game_sprite_t *player_init(int x, int y)
     player_data_t *player_state = (player_data_t *)player_sprite->user_data;
     player_state->health = 6;
     player_state->current_weapon = WEAPON_PISTOL;
+    player_state->control_scheme_stick = CONTROL_SCHEME_AIM;
+    player_state->control_scheme_cpad = CONTROL_SCHEME_AIM;
+    player_state->control_scheme_dpad = CONTROL_SCHEME_MOVE;
 
     player_sprite->collision_box.x = game_sprite_get_width(player_sprite) / 2;
     player_sprite->collision_box.y = game_sprite_get_height(player_sprite) * 3 / 4;
@@ -118,12 +121,58 @@ void player_handle_logic(game_sprite_t *player)
     struct controller_data keys = get_keys_pressed();
     struct controller_data keys_down = get_keys_down();
 
-    if (abs(keys.c[0].y) > 20 || abs(keys.c[0].x) > 20)
+    //0 to 2PI rads
+    float angle_stick = (abs(keys.c[0].y) > 20 || abs(keys.c[0].x) > 20) ? atan2(-keys.c[0].y, keys.c[0].x + 0.0001) + 2 * PI: -1;
+    float angle_dpad = (get_dpad_direction(0) == -1) ? -1 : (8 - get_dpad_direction(0)) * PI / 4.0f;
+    float angle_cpad = -1;
+    struct SI_condat c = keys.c[0];
+    if     (c.C_right && c.C_up)    angle_cpad = 7 * PI / 4;
+    else if (c.C_up && c.C_left)    angle_cpad = 5 * PI / 4;
+    else if (c.C_left && c.C_down)  angle_cpad = 3 * PI / 4;
+    else if (c.C_down && c.C_right) angle_cpad = 1 * PI / 4;
+    else
     {
-        player_state->aiming_angle = atan2(-keys.c[0].y, keys.c[0].x + 0.0001);
+        if      (c.C_right)         angle_cpad = 0 * PI / 4;
+        else if (c.C_up)            angle_cpad = 6 * PI / 4;
+        else if (c.C_left)          angle_cpad = 4 * PI / 4;
+        else if (c.C_down)          angle_cpad = 2 * PI / 4;
     }
 
-    if (keys_down.c[0].L)
+    //What's the current configuration
+    float *aim = NULL;
+    float *walk = NULL;
+    if (player_state->control_scheme_stick == CONTROL_SCHEME_MOVE && angle_stick >= 0)
+    {
+            walk = &angle_stick;
+    }
+    else if (player_state->control_scheme_cpad == CONTROL_SCHEME_MOVE && angle_cpad >= 0)
+    {
+        walk = &angle_cpad;
+    }
+    else if (player_state->control_scheme_dpad == CONTROL_SCHEME_MOVE && angle_dpad >= 0)
+    {
+        walk = &angle_dpad;
+    }
+
+    if (player_state->control_scheme_stick == CONTROL_SCHEME_AIM && angle_stick >= 0)
+    {
+        aim = &angle_stick;
+    }
+    else if (player_state->control_scheme_cpad == CONTROL_SCHEME_AIM && angle_cpad >= 0)
+    {
+        aim = &angle_cpad;
+    }
+    else if (player_state->control_scheme_dpad == CONTROL_SCHEME_AIM && angle_dpad >= 0)
+    {
+        aim = &angle_dpad;
+    }
+
+    if (aim && aim >= 0)
+    {
+        player_state->aiming_angle = *aim;
+    }
+
+    if (keys_down.c[0].L || keys_down.c[0].A)
     {
         game_sprite_set_animation(player, PLAYER_ROLLING);
         player_state->roll_timer = get_milli_tick() + 250;
@@ -132,7 +181,8 @@ void player_handle_logic(game_sprite_t *player)
     }
 
     weapon_data_t *w = weapon_get_data(player_state->current_weapon);
-    if (((w->automatic && (keys.c[0].R || keys.c[0].Z)) || (keys_down.c[0].R || keys_down.c[0].Z)) && player_state->rolling == false)
+    if (((w->automatic && (keys.c[0].R || keys.c[0].Z || keys.c[0].B)) ||
+         (keys_down.c[0].R || keys_down.c[0].Z || keys.c[0].B)) && player_state->rolling == false)
     {
         if (weapon_fire(player_state->current_weapon, TYPE_PLAYER_BULLET,
                         player_state->aiming_angle,
@@ -149,28 +199,7 @@ void player_handle_logic(game_sprite_t *player)
         }
     }
 
-    int direction = get_dpad_direction(0);
-    struct SI_condat c = keys.c[0];
-    if (c.C_right && c.C_down)
-        direction = MOVE_DOWNRIGHT;
-    else if (c.C_down && c.C_left)
-        direction = MOVE_DOWNLEFT;
-    else if (c.C_left && c.C_up)
-        direction = MOVE_UPLEFT;
-    else if (c.C_up && c.C_right)
-        direction = MOVE_UPRIGHT;
-    else
-    {
-        if (c.C_right)
-            direction = MOVE_RIGHT;
-        else if (c.C_down)
-            direction = MOVE_DOWN;
-        else if (c.C_left)
-            direction = MOVE_LEFT;
-        else if (c.C_up)
-            direction = MOVE_UP;
-    }
-    if (direction >= 0 && (get_milli_tick() > player_state->roll_timer))
+    if (walk && *walk >= 0 && (get_milli_tick() > player_state->roll_timer))
     {
         game_sprite_set_animation(player, PLAYER_RUNNING);
         player_state->speed = DEFAULT_PLAYER_SPEED;
@@ -178,68 +207,43 @@ void player_handle_logic(game_sprite_t *player)
         player_state->rolling = false;
     }
 
-    if (direction == -1)
+    if (!walk || (walk && *walk < 0))
     {
         game_sprite_set_animation(player, PLAYER_IDLE);
         player_state->rolling = false;
         player_state->speed = DEFAULT_PLAYER_SPEED;
     }
 
-    int movex = 0, movey = 0;
-    switch (direction)
+    if (walk && *walk >= 0)
     {
-    case MOVE_RIGHT:
-        movex = player_state->speed;
-        break;
-    case MOVE_LEFT:
-        movex = -player_state->speed;
-        break;
-    case MOVE_UP:
-        movey = -player_state->speed;
-        break;
-    case MOVE_DOWN:
-        movey = player_state->speed;
-        break;
-    case MOVE_UPRIGHT:
-        movex = player_state->speed * 0.7f;
-        movey = -player_state->speed * 0.7f;
-        break;
-    case MOVE_UPLEFT:
-        movex = -player_state->speed * 0.7f;
-        movey = -player_state->speed * 0.7f;
-        break;
-    case MOVE_DOWNRIGHT:
-        movex = player_state->speed * 0.7f;
-        movey = player_state->speed * 0.7f;
-        break;
-    case MOVE_DOWNLEFT:
-        movex = -player_state->speed * 0.7f;
-        movey = player_state->speed * 0.7f;
-        break;
+        int movex = player_state->speed * cosf(*walk);
+        int movey = player_state->speed * sinf(*walk);
+        float new_pos_x = player->x + movex;
+        float new_pos_y = player->y + movey;
+
+            player->mirror_x = (movex < 0);
+
+            collision_box_t box;
+            game_sprite_get_collision_box(player, &box);
+
+            box.x += movex;
+            if (map_on_passable_tile(&box))
+            {
+                player->x = new_pos_x;
+            }
+
+            box.y += movey;
+            if (map_on_passable_tile(&box))
+            {
+                player->y = new_pos_y;
+            }
     }
 
-    if (movex)
-        player->mirror_x = (movex < 0);
-
-    float new_pos_x = player->x + movex;
-    float new_pos_y = player->y + movey;
-
-    collision_box_t box;
-    game_sprite_get_collision_box(player, &box);
-
-    box.x += movex;
-    if (map_on_passable_tile(&box))
-    {
-        player->x = new_pos_x;
-    }
-
-    box.y += movey;
-    if (map_on_passable_tile(&box))
-    {
-        player->y = new_pos_y;
-    }
-
+    float offset_x = (aim) ? (10 * cosf(*aim)) : 0;
+    float offset_y = (aim) ? (10 * sinf(*aim)) : 0;
     //Center the camera around the player, with a small offset in the direction of aim
-    camera_set_offset(-player->x - keys.c[0].x / 10 + video_get_width() / 2,
-                      -player->y + keys.c[0].y / 10 + video_get_height() / 2);
+    camera_set_offset(-player->x - (game_sprite_get_width(player) / 2) - offset_x  + video_get_width() / 2,
+                      -player->y - (game_sprite_get_height(player) / 2) - offset_y + video_get_height() / 2);
+
+
 }
