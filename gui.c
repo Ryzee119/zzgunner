@@ -154,6 +154,7 @@ game_state_t gui_handle(game_state_t game_state)
 {
     game_state_t _state = game_state;
     struct controller_data keys_down = get_keys_down();
+    struct controller_data keys_pressed = get_keys_pressed();
 
     if (_state == INIT_MAIN_MENU)
     {
@@ -191,11 +192,31 @@ game_state_t gui_handle(game_state_t game_state)
     else if (_state == MAIN_MENU)
     {
         static int cursor_pos = 0;
+        static int stick_toggle = 0;
 
-        if (keys_down.c[0].down)
+        if (keys_pressed.c[0].y > 20 && stick_toggle == 0)
+        {
+            stick_toggle = -1;
+        }
+        else if (keys_pressed.c[0].y < -20 && stick_toggle == 0)
+        {
+            stick_toggle = 1;
+        }
+        else if (keys_pressed.c[0].y < 15 && keys_pressed.c[0].y > -15)
+        {
+            stick_toggle = 0;
+        }
+
+        if (keys_down.c[0].down || stick_toggle == 1)
+        {
             cursor_pos = (cursor_pos + 1) % MENU_ITEMS;
-        if (keys_down.c[0].up)
+            stick_toggle++;
+        }
+        if (keys_down.c[0].up || stick_toggle == -1)
+        {
             cursor_pos--;
+            stick_toggle--;
+        }
         if (cursor_pos < 0)
             cursor_pos = 0;
 
